@@ -1,0 +1,18 @@
+cabal-version: 1.12
+
+name:           day01
+version:        0.0.0
+build-type:     Simple
+
+executable day01
+  main-is: Day01.hs
+  ghc-options:
+    -O2
+    -threaded
+    -rtsopts -with-rtsopts=-N
+  data-files:
+    input
+  build-depends:
+    base >=4.7 && <5,
+    containers
+  default-language: Haskell2010
