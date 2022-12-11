@@ -1,0 +1,23 @@
+cabal-version: 1.12
+
+name:           day11
+version:        0.0.0
+build-type:     Simple
+
+executable day11
+  main-is: Day11.hs
+  ghc-options:
+    -O2
+    -threaded
+    -rtsopts -with-rtsopts=-N
+  data-files:
+    input
+  other-modules:
+    Paths_day11
+  build-depends:
+    base >=4.7 && <5,
+    containers,
+    common,
+    mtl,
+    lens
+  default-language: Haskell2010
