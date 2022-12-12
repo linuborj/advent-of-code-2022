@@ -39,12 +39,13 @@ data Step node cost = Step
 
 instance (Hashable node, Hashable cost) => Hashable (Step node cost)
 
-aStar :: (Hashable node, Hashable cost, Ord node, Ord cost, Num cost) => (node -> [Step node cost]) -> node -> [VisitedNode node cost]
-aStar steps start = worker initialCandidates (HashSet.singleton start)
+aStar :: (Hashable node, Hashable cost, Ord node, Ord cost, Num cost) => (node -> [Step node cost]) -> [node] -> [VisitedNode node cost]
+aStar steps starters = worker initialCandidates (HashSet.fromList starters)
   where
     initialCandidates = HashPSQ.fromList
       [ (VisitedNode next start cost, cost + estimatedRemaingCost, ())
-      | Step next cost estimatedRemaingCost <- steps start
+      | start <- starters
+      , Step next cost estimatedRemaingCost <- steps start
       ]
     worker candidates visited = case HashPSQ.minView candidates of
       Nothing -> []
