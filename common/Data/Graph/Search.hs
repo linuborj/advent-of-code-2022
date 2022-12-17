@@ -5,6 +5,7 @@ module Data.Graph.Search
   , Step (..)
   , aStar
   , depthFirst
+  , floydWarshall
   ) where
 
 import GHC.Generics (Generic)
@@ -13,6 +14,9 @@ import Data.HashPSQ (HashPSQ)
 import qualified Data.HashPSQ as HashPSQ
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HashSet
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Maybe as Maybe
 
 
 depthFirst :: (Eq node, Hashable node) => (node -> [node]) -> node -> [node]
@@ -66,4 +70,21 @@ candidate VisitedNode { node, accumulatedCost } Step { next, cost } = VisitedNod
 
 priority :: Num cost => VisitedNode node cost -> Step node cost -> cost
 priority VisitedNode { accumulatedCost } Step { cost, estimatedRemaingCost } = accumulatedCost + cost + estimatedRemaingCost
+
+floydWarshall :: (Hashable node, Eq node, Ord cost, Num cost) => [node] -> (node -> [(node, cost)]) -> (node, node) -> cost
+floydWarshall nodes edges = (distances HashMap.!)
+  where
+    distances = foldl update initialDistances [ (k, i, j) | k <- nodes, i <- nodes, j <- nodes ]
+    update distances (k, i, j) = Maybe.fromMaybe distances $ do
+      y <- distances HashMap.!? (i, k)
+      z <- distances HashMap.!? (k, j)
+      return $ case distances HashMap.!? (i, j) of
+        Nothing -> HashMap.insert (i, j) (y + z) distances
+        Just x -> if x > y + z
+          then HashMap.insert (i, j) (y + z) distances
+          else distances
+    initialDistances = selfDistances `HashMap.union` edgeDistances
+    edgeDistances = HashMap.fromList [((node, node'), cost) | node <- nodes, (node', cost) <- edges node ]
+    selfDistances = HashMap.fromList [((node, node), 0) | node <- nodes]
+
 
